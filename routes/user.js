@@ -41,8 +41,12 @@ router.post("/login",
     res.redirect("/listings");
 })
 
-router.get("/logout",(req,res)=>{
-    
+router.get("/logout",(req,res,next)=>{
+    req.logOut((err)=>{
+        return next(err);
+    })
+    req.flash("success","ypu are logged out!");
+    res.redirect("/listings");
 })
 
 
