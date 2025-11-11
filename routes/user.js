@@ -41,6 +41,9 @@ router.post("/login",
     res.redirect("/listings");
 })
 
+router.get("/logout",(req,res)=>{
+    
+})
 
 
 module.exports = router;
