@@ -36,7 +36,7 @@ router.get("/login", (req, res) => {
 router.post("/login",
     passport.authenticate("local", 
     { faliureRedirect: "/login", failireFlash: true }),
-    async (res, res) => {
+    async (req, res) => {
     res.flash("logged in successfully");
     res.redirect("/listings");
 })

@@ -15,9 +15,10 @@ const User = require("./models/user.js");
 
 
 
+
 const listingsRouter = require("./routes/listing.js");
 const reviewsRouter = require("./routes/review.js");
-const userRouter = require(".routes/user.js");
+const userRouter = require("./routes/user.js");
 
 
 
@@ -34,6 +35,23 @@ main()
 async function main() {
     await mongoose.connect(MONGO_UR);
 }
+main();
+// async function main() {
+//   try {
+//     await mongoose.connect(MONGO_UR, {
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true
+//     });
+//     console.log("✅ Connected to MongoDB successfully");
+//   } catch (err) {
+//     console.error("❌ MongoDB connection failed:", err.message);
+//   }
+// }
+// main();
+
+
+
+
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -66,7 +84,7 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use((req,res,next)=>{
     res.locals.success = req.flash("success");
-    res.locals.delete = req.flash("del");
+    res.locals.delete = req.flash("delete");
     res.locals.error = req.flash("error");
     next();
 });
