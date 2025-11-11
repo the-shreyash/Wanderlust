@@ -17,10 +17,10 @@ async function main(){
     await mongoose.connect(MONGO_UR);
 }
 
-const intiDB= async()=>{
+const initDB= async()=>{
     await Listing.deleteMany({});
     await Listing.insertMany(initData.data);
     console.log("data was initalized");
 };
 
-intiDB();
+initDB();

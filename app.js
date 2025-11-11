@@ -7,19 +7,25 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js"); 
 
 
 
-const listings = require("./routes/listing.js");
-const reviews = require("./routes/review.js");
+const listingsRouter = require("./routes/listing.js");
+const reviewsRouter = require("./routes/review.js");
+const userRouter = require(".routes/user.js");
+
+
 
 
 main()
     .then((() => {
         console.log("Connected to MongoDB");
-        app.listen(8080, () => {
-            console.log("Server is running on port 8080");
-        }); 
+         
     }))
     .catch((err) => {
         console.log(err);
@@ -37,6 +43,45 @@ app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+const sesssionOption ={
+    secret: "mysupersceret",
+    resave:false,
+    saveninitailized:true,
+    cookie:{
+        expire: Date.now()+ 7*24*60*60*1000,
+        maxAge: 7*24*60*60*1000,
+        httpOnly:true,
+    }
+};
+
+app.use(session(sesssionOption));
+app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use((req,res,next)=>{
+    res.locals.success = req.flash("success");
+    res.locals.delete = req.flash("del");
+    res.locals.error = req.flash("error");
+    next();
+});
+
+app.get("/demouser",async(req,res)=>{
+    let fakeUser = new User({
+        email: "shreya@gmail.com",
+        username: "shreyash"
+
+    });
+
+   let registeredUser= await User.register(fakeUser,"mypassword");
+   res.send(registeredUser);
+})
+
 
 app.get("/", async (req, res) => {
 
@@ -51,13 +96,13 @@ app.get("/", async (req, res) => {
 
 //now all this code for listing route  shifted into listing.js because now we use router to just covnert this long into small one line code by requiring code of listing.js file by router 
 
-app.use("/listings", listings);
+app.use("/listings", listingsRouter);
 
 
 //post review route
 //post route create 
 
-app.use("/listing/:id/review",reviews);
+app.use("/listing/:id/review",reviewsRouter);
 
 
 
@@ -69,12 +114,15 @@ app.use("/listing/:id/review",reviews);
 //         location:"Goa",
 //         countery:"india",
 
-//     });
+//  });
+
 
 //     await sampleListing.save();
 //     console.log("sample was saved ");
 //     res.send("successfull testing ");
 // })
+
+app.use("/",userRouter);
 
 app.all("/*", (req, res, next) => {
     next(new ExpressError(404, "page not found"));
@@ -90,15 +138,8 @@ app.use((err, req, res, next) => {
 
 // console.log(listEndpoints(app));
 
-app.get("/seed", async (req, res) => {
-  const sample = new listing({
-    title: "Mountain View Cabin",
-    description: "A cozy wooden cabin in Himachal.",
-    price: 1500,
-    location: "Manali",
-    country: "India"
-  });
-  await sample.save();
-  res.send("Sample listing added!");
-});
 
+
+app.listen(8080, () => {
+            console.log("Server is running on port 8080");
+    });
