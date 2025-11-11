@@ -40,4 +40,7 @@ router.post("/login",
     res.flash("logged in successfully");
     res.redirect("/listings");
 })
+
+
+
 module.exports = router;
